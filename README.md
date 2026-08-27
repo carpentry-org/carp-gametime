@@ -30,20 +30,10 @@ Add this to your project by loading `gametime.carp`.
 (use GameTime)
 ```
 
-## Usage
 
-```clojure
-(use GameTime)
+## Examples
 
-(let [clock (Clock.new)]
-  (while (not (finished?))
-    (do
-      (Clock.tick! &clock)
-      (let [dt (Clock.dt &clock)]
-        (update-physics (* 10.0 dt))) ; Move 10 units per second
-      (render-frame))))
-```
-
+See [examples.md](examples.md) for usage examples.
 ## Running Tests
 
 ```bash
