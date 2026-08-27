@@ -8,20 +8,31 @@
         s0 (Test.State.init 0 0)
         s1 (assert-equal &s0 1.0 (Clock.scale &c) "Initial scale is 1.0")
         s2 (assert-equal &s1 0.0 (Clock.total &c) "Initial total is 0.0")
-        s3 (assert-equal &s2 0.0 (Clock.real-total &c) "Initial real-total is 0.0")
+        s3 (assert-equal &s2
+          0.0
+          (Clock.real-total &c)
+          "Initial real-total is 0.0")
         s4 (assert-equal &s3 0.0 (Clock.raw-dt &c) "Initial raw-dt is 0.0")
-        s5 (assert-equal &s4 0.0 (Clock.clamped-dt &c) "Initial clamped-dt is 0.0")]
+        s5 (assert-equal &s4
+          0.0
+          (Clock.clamped-dt &c)
+          "Initial clamped-dt is 0.0")]
     (do
       ;; Tick 1: Normal advancement
-      (System.sleep-micros 10000) ;; Sleep 10ms
+      (System.sleep-micros 10000)
+      ;; Sleep 10ms
       (Clock.tick! &c)
       (let [rdt1 (Clock.raw-dt &c)
             cdt1 (Clock.clamped-dt &c)
             total1 (Clock.total &c)
             rtotal1 (Clock.real-total &c)
             s6 (assert-true &s5 (> rdt1 0.0) "raw-dt is positive after sleep")
-            s7 (assert-true &s6 (Generics.approx rdt1 cdt1) "raw-dt equals clamped-dt when no spike")
-            s8 (assert-true &s7 (Generics.approx cdt1 total1) "Total approx equals clamped-dt after first tick")]
+            s7 (assert-true &s6
+              (Generics.approx rdt1 cdt1)
+              "raw-dt equals clamped-dt when no spike")
+            s8 (assert-true &s7
+              (Generics.approx cdt1 total1)
+              "Total approx equals clamped-dt after first tick")]
         (do
           ;; Tick 2: Scaling
           (Clock.set-scale! &c 0.5)
@@ -31,20 +42,32 @@
                 cdt2 (Clock.clamped-dt &c)
                 sdt2 (Clock.scaled-dt &c)
                 total2 (Clock.total &c)
-                s9 (assert-true &s8 (Generics.approx (* cdt2 0.5) sdt2) "scaled-dt respects scale")
-                s10 (assert-true &s9 (Generics.approx rdt2 cdt2) "Scaling doesn't affect clamping")]
+                s9 (assert-true &s8
+                  (Generics.approx (* cdt2 0.5) sdt2)
+                  "scaled-dt respects scale")
+                s10 (assert-true &s9
+                  (Generics.approx rdt2 cdt2)
+                  "Scaling doesn't affect clamping")]
             (do
               ;; Tick 3: Clamping (Divergence test)
-              (Clock.set-max-dt! &c 0.01) ;; Clamp to 10ms
-              (System.sleep-micros 50000) ;; Wait 50ms
+              (Clock.set-max-dt! &c 0.01)
+              ;; Clamp to 10ms
+              (System.sleep-micros 50000)
+              ;; Wait 50ms
               (Clock.tick! &c)
               (let [rdt3 (Clock.raw-dt &c)
                     cdt3 (Clock.clamped-dt &c)
                     total3 (Clock.total &c)
                     rtotal3 (Clock.real-total &c)
-                    s11 (assert-true &s10 (> rdt3 0.04) "raw-dt captures full sleep")
-                    s12 (assert-true &s11 (<= cdt3 0.0101) "clamped-dt is capped by max-dt")
-                    s13 (assert-true &s12 (> rtotal3 total3) "real-total diverges from simulation total")]
+                    s11 (assert-true &s10
+                      (> rdt3 0.04)
+                      "raw-dt captures full sleep")
+                    s12 (assert-true &s11
+                      (<= cdt3 0.0101)
+                      "clamped-dt is capped by max-dt")
+                    s13 (assert-true &s12
+                      (> rtotal3 total3)
+                      "real-total diverges from simulation total")]
                 (do
                   ;; Tick 4: Pause logic
                   (Clock.pause! &c)
@@ -52,9 +75,17 @@
                   (Clock.tick! &c)
                   (let [sdt4 (Clock.scaled-dt &c)
                         cdt4 (Clock.clamped-dt &c)
-                        s14 (assert-equal &s13 0.0 sdt4 "scaled-dt is 0.0 when paused")
-                        s15 (assert-true &s14 (> cdt4 0.0) "clamped-dt still advances when paused")]
+                        s14 (assert-equal &s13
+                          0.0
+                          sdt4
+                          "scaled-dt is 0.0 when paused")
+                        s15 (assert-true &s14
+                          (> cdt4 0.0)
+                          "clamped-dt still advances when paused")]
                     (do
                       ;; Reset
                       (Clock.reset! &c)
-                      (assert-equal &s15 0.0 (Clock.clamped-dt &c) "dt is 0.0 after reset"))))))))))))
+                      (assert-equal &s15
+                        0.0
+                        (Clock.clamped-dt &c)
+                        "dt is 0.0 after reset"))))))))))))
