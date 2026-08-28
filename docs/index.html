@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div class="content">
+            <a href="https://github.com/carpentry-org/carp-gametime">
+                <div class="logo">
+                    <img src="" alt="Logo">
+                    <div class="index">
+                        <ul>
+                            <li>
+                                <a href="Clock.html">
+                                    Clock
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h1>
+                        carp-gametime
+                    </h1>
+                    <p>Frame timing for Carp: delta time, time scaling
+and FPS.</p>
+<pre><code>(load &quot;git@github.com:carpentry-org/carp-gametime@master&quot;)
+</code></pre>
+<p><a href="./Clock.html"><code>Clock</code></a> is the whole library. It keeps time internally as raw
+<code>Uint64</code> nanoseconds, so a long session does not accumulate the drift that
+summing <code>Double</code> seconds would, and it clamps the delta so a frame spike (a
+breakpoint, a stalled load) cannot blow up a physics step.</p>
+<p>Three deltas come out of one tick, and they are not interchangeable:
+<code>raw-dt</code> is the wall clock, <code>clamped-dt</code> is what the simulation should trust,
+and <code>scaled-dt</code> is <code>clamped-dt</code> times the time scale, which is what gameplay
+should use.</p>
+<pre><code>(let-do [c (Clock.new)]
+  (while true
+    (do
+      (Clock.tick! &amp;c)
+      (update-world (Clock.scaled-dt &amp;c))
+      (draw (Clock.smooth-fps &amp;c)))))
+</code></pre>
+
+                </div>
+            </a>
+        </div>
+    </body>
+</html>

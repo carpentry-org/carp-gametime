@@ -1,0 +1,38 @@
+(load "carp-gametime.carp")
+
+(Project.config "title" "carp-gametime")
+(Project.config "docs-directory" "./docs/")
+(Project.config "docs-logo" "")
+(Project.config "docs-url" "https://github.com/carpentry-org/carp-gametime")
+(Project.config "docs-styling" "../style.css")
+(Project.config "docs-prelude" "Frame timing for Carp: delta time, time scaling
+and FPS.
+
+```
+(load \"git@github.com:carpentry-org/carp-gametime@master\")
+```
+
+[`Clock`](./Clock.html) is the whole library. It keeps time internally as raw
+`Uint64` nanoseconds, so a long session does not accumulate the drift that
+summing `Double` seconds would, and it clamps the delta so a frame spike (a
+breakpoint, a stalled load) cannot blow up a physics step.
+
+Three deltas come out of one tick, and they are not interchangeable:
+`raw-dt` is the wall clock, `clamped-dt` is what the simulation should trust,
+and `scaled-dt` is `clamped-dt` times the time scale, which is what gameplay
+should use.
+
+```
+(let-do [c (Clock.new)]
+  (while true
+    (do
+      (Clock.tick! &c)
+      (update-world (Clock.scaled-dt &c))
+      (draw (Clock.smooth-fps &c)))))
+```")
+
+(save-docs Clock)
+; Carp's save-docs hardcodes the index filename as <title>_index.html.
+; Rename to docs/index.html.
+(defn main []
+  (System.system "mv ./docs/carp-gametime_index.html ./docs/index.html"))

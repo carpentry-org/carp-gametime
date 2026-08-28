@@ -1,0 +1,1205 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div class="content">
+            <div class="logo">
+                <a href="https://github.com/carpentry-org/carp-gametime">
+                    <img src="">
+                </a>
+                <div class="title">
+                    carp-gametime
+                </div>
+                <div class="index">
+                    <ul>
+                        <li>
+                            <a href="Clock.html">
+                                Clock
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="module">
+                <h1>
+                    Clock
+                </h1>
+                <div class="module-description">
+                    <p>is a high-precision game timer for tracking delta-time, total time, and FPS.</p>
+<h3>Precision &amp; Stability</h3>
+<p>The Clock stores time internally as raw <code>Uint64</code> nanoseconds to avoid the cumulative drift
+associated with floating-point summation. It also provides delta clamping to prevent
+physics instability during frame spikes (e.g., when the debugger is paused).</p>
+<h3>Dual-Time Tracking</h3>
+<p>The module distinguishes between two types of total time:</p>
+<ol>
+<li><strong>Simulation Total</strong> (<code>total</code>): Accumulates clamped delta-times. This represents the
+&quot;logical&quot; time the simulation has experienced.</li>
+<li><strong>Real Total</strong> (<code>real-total</code>): Accumulates actual wall-clock time. Useful for profiling,
+telemetry, and non-simulated UI.</li>
+</ol>
+<h3>Triple-Delta Semantics</h3>
+<p>The module provides three distinct views of the time elapsed since the last tick:</p>
+<ol>
+<li><strong>Raw DT</strong> (<code>raw-dt</code>): Actual wall-clock seconds (unclamped, unscaled).</li>
+<li><strong>Clamped DT</strong> (<code>clamped-dt</code>): Simulation-safe seconds (clamped by <code>max-dt</code>, unscaled).</li>
+<li><strong>Scaled DT</strong> (<code>scaled-dt</code>): Final gameplay seconds (clamped AND multiplied by <code>scale</code>).</li>
+</ol>
+<h3>Reset &amp; Totals</h3>
+<p><code>reset!</code> skips large time gaps by updating <code>last-ns</code>. Note that <code>reset!</code> does NOT
+reset the <code>total</code> or <code>real-total</code> accumulators, as they represent the lifetime of
+the clock, not the current frame gap.</p>
+
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#clamped-dt">
+                        <h3 id="clamped-dt">
+                            clamped-dt
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (clamped-dt c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the simulation-safe seconds elapsed since the last tick (clamped, unscaled).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#clamped-dt-ns-raw">
+                        <h3 id="clamped-dt-ns-raw">
+                            clamped-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Uint64 a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>clamped-dt-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#copy">
+                        <h3 id="copy">
+                            copy
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>copies a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#delete">
+                        <h3 id="delete">
+                            delete
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>deletes a <code>Clock</code>. Should usually not be called manually.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#fps">
+                        <h3 id="fps">
+                            fps
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (fps c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the instantaneous frames per second (based on clamped-dt).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#fps-raw">
+                        <h3 id="fps-raw">
+                            fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Double a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>fps-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#init">
+                        <h3 id="init">
+                            init
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Uint64, Uint64, Uint64, Uint64, Uint64, Double, Double, Double, Double] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>creates a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#last-ns-raw">
+                        <h3 id="last-ns-raw">
+                            last-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Uint64 a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>last-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#max-dt-raw">
+                        <h3 id="max-dt-raw">
+                            max-dt-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Double a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>max-dt-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#new">
+                        <h3 id="new">
+                            new
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [] Clock)
+                    </p>
+                    <pre class="args">
+                        (new)
+                    </pre>
+                    <p class="doc">
+                        <p>creates a new Clock initialized at the current system time.
+Default max-dt is 0.1s (100ms).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#pause!">
+                        <h3 id="pause!">
+                            pause!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] ())
+                    </p>
+                    <pre class="args">
+                        (pause! c)
+                    </pre>
+                    <p class="doc">
+                        <p>pauses the clock by setting the time scale to 0.0.
+Note: This only affects scaled-dt; clamped-dt and total continue to advance.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#prn">
+                        <h3 id="prn">
+                            prn
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] String)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>converts a <code>Clock</code> to a string.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#raw-dt">
+                        <h3 id="raw-dt">
+                            raw-dt
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (raw-dt c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the actual wall-clock seconds elapsed since the last tick (unclamped, unscaled).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#raw-dt-ns-raw">
+                        <h3 id="raw-dt-ns-raw">
+                            raw-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Uint64 a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>raw-dt-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#real-total">
+                        <h3 id="real-total">
+                            real-total
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (real-total c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the actual total elapsed wall-clock seconds.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#real-total-ns-raw">
+                        <h3 id="real-total-ns-raw">
+                            real-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Uint64 a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>real-total-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#reset!">
+                        <h3 id="reset!">
+                            reset!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] ())
+                    </p>
+                    <pre class="args">
+                        (reset! c)
+                    </pre>
+                    <p class="doc">
+                        <p>resets the clock's last-ns-raw to the current time, effective skipping a large time gap.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#scale">
+                        <h3 id="scale">
+                            scale
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (scale c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the current time scale.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#scale-raw">
+                        <h3 id="scale-raw">
+                            scale-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Double a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>scale-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#scaled-dt">
+                        <h3 id="scaled-dt">
+                            scaled-dt
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (scaled-dt c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the seconds elapsed since the last tick, clamped and multiplied by the current time-scale.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-clamped-dt-ns-raw">
+                        <h3 id="set-clamped-dt-ns-raw">
+                            set-clamped-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Uint64] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>clamped-dt-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-clamped-dt-ns-raw!">
+                        <h3 id="set-clamped-dt-ns-raw!">
+                            set-clamped-dt-ns-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Uint64] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>clamped-dt-ns-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-fps-raw">
+                        <h3 id="set-fps-raw">
+                            set-fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Double] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>fps-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-fps-raw!">
+                        <h3 id="set-fps-raw!">
+                            set-fps-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>fps-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-last-ns-raw">
+                        <h3 id="set-last-ns-raw">
+                            set-last-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Uint64] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>last-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-last-ns-raw!">
+                        <h3 id="set-last-ns-raw!">
+                            set-last-ns-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Uint64] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>last-ns-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-max-dt!">
+                        <h3 id="set-max-dt!">
+                            set-max-dt!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <pre class="args">
+                        (set-max-dt! c m)
+                    </pre>
+                    <p class="doc">
+                        <p>sets the maximum allowed delta-time (in seconds) to prevent physics explosions.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-max-dt-raw">
+                        <h3 id="set-max-dt-raw">
+                            set-max-dt-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Double] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>max-dt-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-max-dt-raw!">
+                        <h3 id="set-max-dt-raw!">
+                            set-max-dt-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>max-dt-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-raw-dt-ns-raw">
+                        <h3 id="set-raw-dt-ns-raw">
+                            set-raw-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Uint64] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>raw-dt-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-raw-dt-ns-raw!">
+                        <h3 id="set-raw-dt-ns-raw!">
+                            set-raw-dt-ns-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Uint64] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>raw-dt-ns-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-real-total-ns-raw">
+                        <h3 id="set-real-total-ns-raw">
+                            set-real-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Uint64] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>real-total-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-real-total-ns-raw!">
+                        <h3 id="set-real-total-ns-raw!">
+                            set-real-total-ns-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Uint64] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>real-total-ns-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-scale!">
+                        <h3 id="set-scale!">
+                            set-scale!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <pre class="args">
+                        (set-scale! c s)
+                    </pre>
+                    <p class="doc">
+                        <p>sets the time scale multiplier (e.g. 0.5 for slow-motion).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-scale-raw">
+                        <h3 id="set-scale-raw">
+                            set-scale-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Double] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>scale-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-scale-raw!">
+                        <h3 id="set-scale-raw!">
+                            set-scale-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>scale-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-sim-total-ns-raw">
+                        <h3 id="set-sim-total-ns-raw">
+                            set-sim-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Uint64] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>sim-total-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-sim-total-ns-raw!">
+                        <h3 id="set-sim-total-ns-raw!">
+                            set-sim-total-ns-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Uint64] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>sim-total-ns-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-smooth-fps-raw">
+                        <h3 id="set-smooth-fps-raw">
+                            set-smooth-fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, Double] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>smooth-fps-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#set-smooth-fps-raw!">
+                        <h3 id="set-smooth-fps-raw!">
+                            set-smooth-fps-raw!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a), Double] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>sets the <code>smooth-fps-raw</code> property of a <code>Clock</code> in place.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#sim-total-ns-raw">
+                        <h3 id="sim-total-ns-raw">
+                            sim-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Uint64 a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>sim-total-ns-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#smooth-fps">
+                        <h3 id="smooth-fps">
+                            smooth-fps
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (smooth-fps c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the smoothed frames per second (exponential moving average).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#smooth-fps-raw">
+                        <h3 id="smooth-fps-raw">
+                            smooth-fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] (Ref Double a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>smooth-fps-raw</code> property of a <code>Clock</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#str">
+                        <h3 id="str">
+                            str
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] String)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>converts a <code>Clock</code> to a string.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#tick!">
+                        <h3 id="tick!">
+                            tick!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] ())
+                    </p>
+                    <pre class="args">
+                        (tick! c)
+                    </pre>
+                    <p class="doc">
+                        <p>updates the clock state based on the current system time.
+Should be called once per frame at the start of the update loop.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#total">
+                        <h3 id="total">
+                            total
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (total c)
+                    </pre>
+                    <p class="doc">
+                        <p>returns the total elapsed seconds of simulation time (sum of clamped deltas).</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#unpause!">
+                        <h3 id="unpause!">
+                            unpause!
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] ())
+                    </p>
+                    <pre class="args">
+                        (unpause! c)
+                    </pre>
+                    <p class="doc">
+                        <p>unpauses the clock by resetting the time scale to 1.0.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#unscaled-dt">
+                        <h3 id="unscaled-dt">
+                            unscaled-dt
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref Clock a)] Double)
+                    </p>
+                    <pre class="args">
+                        (unscaled-dt c)
+                    </pre>
+                    <p class="doc">
+                        <p>alias for clamped-dt.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-clamped-dt-ns-raw">
+                        <h3 id="update-clamped-dt-ns-raw">
+                            update-clamped-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Uint64] Uint64 a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>clamped-dt-ns-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-fps-raw">
+                        <h3 id="update-fps-raw">
+                            update-fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Double] Double a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>fps-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-last-ns-raw">
+                        <h3 id="update-last-ns-raw">
+                            update-last-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Uint64] Uint64 a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>last-ns-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-max-dt-raw">
+                        <h3 id="update-max-dt-raw">
+                            update-max-dt-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Double] Double a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>max-dt-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-raw-dt-ns-raw">
+                        <h3 id="update-raw-dt-ns-raw">
+                            update-raw-dt-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Uint64] Uint64 a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>raw-dt-ns-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-real-total-ns-raw">
+                        <h3 id="update-real-total-ns-raw">
+                            update-real-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Uint64] Uint64 a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>real-total-ns-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-scale-raw">
+                        <h3 id="update-scale-raw">
+                            update-scale-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Double] Double a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>scale-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-sim-total-ns-raw">
+                        <h3 id="update-sim-total-ns-raw">
+                            update-sim-total-ns-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Uint64] Uint64 a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>sim-total-ns-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#update-smooth-fps-raw">
+                        <h3 id="update-smooth-fps-raw">
+                            update-smooth-fps-raw
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [Clock, (Ref (Fn [Double] Double a) b)] Clock)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>updates the <code>smooth-fps-raw</code> property of a <code>Clock</code> using a function <code>f</code>.</p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
