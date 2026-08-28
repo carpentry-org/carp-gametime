@@ -4,3 +4,4 @@ out/
 *.h
 *~
 .carp-src/
+docs/
