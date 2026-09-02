@@ -26,14 +26,15 @@ The Gametime module is designed for accuracy and ease of use:
 Add this to your project by loading `gametime.carp`.
 
 ```clojure
-(load "path/to/carp-gametime/gametime.carp")
+(load "git@github.com:carpentry-org/carp-gametime@master")
 (use GameTime)
 ```
 
 
 ## Examples
 
-See [examples.md](examples.md) for usage examples.
+See [examples.md](examples.md) for usage examples, and the
+[API documentation](https://carpentry.dev/carp-gametime) for the full reference.
 ## Running Tests
 
 ```bash
